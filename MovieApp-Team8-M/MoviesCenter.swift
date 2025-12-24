@@ -5,13 +5,13 @@
 //  Created by Deemah Alhazmi on 23/12/2025.
 //
 
-import Foundation
 import SwiftUI
 
 // MARK: - MoviesCenter
 
 struct MoviesCenter: View {
     @State private var query = ""
+    @State private var selectedMovie: Movie?   // ✅ navigation target
 
     private let movies = Movie.sample
 
@@ -25,13 +25,22 @@ struct MoviesCenter: View {
 
                         if isSearching {
                             SectionTitle("Results")
-                            SearchResultsGrid(items: searchResults)
+                            SearchResultsGrid(items: searchResults) { movie in
+                                selectedMovie = movie
+                            }
                         } else {
                             SectionTitle("High Rated")
-                            HighRatedCarousel(items: filtered(.highRated))
+                            HighRatedCarousel(items: filtered(.highRated)) { movie in
+                                selectedMovie = movie
+                            }
 
-                            GenreRow(title: "Drama", actionTitle: "Show more", items: filtered(.drama))
-                            GenreRow(title: "Comedy", actionTitle: "Show more", items: filtered(.comedy))
+                            GenreRow(title: "Drama", actionTitle: "Show more", items: filtered(.drama)) { movie in
+                                selectedMovie = movie
+                            }
+
+                            GenreRow(title: "Comedy", actionTitle: "Show more", items: filtered(.comedy)) { movie in
+                                selectedMovie = movie
+                            }
                         }
                     }
                     .padding(.horizontal, 16)
@@ -59,34 +68,12 @@ struct MoviesCenter: View {
                     }
                 }
             }
-        }
-
-        .tint(Color("AccentColor", fallback: .yellow))
-    }
-
-    // MARK: - Header
-
-    private var header: some View {
-        HStack(alignment: .top) {
-            Text("Movies Center")
-                .font(.system(size: 34, weight: .bold))
-
-            Spacer()
-
-            Button {
-                // later: navigate to profile
-            } label: {
-                Image("ProfileAvatar")
-                    .resizable()
-                    .scaledToFill()
-                    .frame(width: 36, height: 36)
-                    .clipShape(Circle())
+            // ✅ Connect to MovieDetailsView
+            .navigationDestination(item: $selectedMovie) { _ in
+                MovieDetailsView()
             }
-            .buttonStyle(.plain)
-            .accessibilityLabel("Profile")
         }
-        .foregroundStyle(.white)
-        .padding(.top, 6)
+        .tint(Color("AccentColor", fallback: .yellow))
     }
 
     // MARK: - Search logic
@@ -112,7 +99,6 @@ struct MoviesCenter: View {
     }
 }
 
-
 // MARK: - Section Title
 
 private struct SectionTitle: View {
@@ -131,11 +117,12 @@ private struct SectionTitle: View {
 
 private struct HighRatedCarousel: View {
     let items: [Movie]
+    let onSelect: (Movie) -> Void
 
     var body: some View {
         TabView {
             ForEach(items) { movie in
-                MovieHeroCard(movie: movie)
+                MovieHeroCard(movie: movie, onSelect: onSelect)
                     .padding(.vertical, 6)
                     .padding(.horizontal, 2)
             }
@@ -147,6 +134,7 @@ private struct HighRatedCarousel: View {
 
 private struct MovieHeroCard: View {
     let movie: Movie
+    let onSelect: (Movie) -> Void
 
     var body: some View {
         ZStack(alignment: .bottomLeading) {
@@ -184,9 +172,7 @@ private struct MovieHeroCard: View {
             .padding(16)
         }
         .contentShape(Rectangle())
-        .onTapGesture {
-            // later: navigate to details
-        }
+        .onTapGesture { onSelect(movie) }   // ✅ navigate
     }
 }
 
@@ -194,6 +180,7 @@ private struct MovieHeroCard: View {
 
 private struct SearchResultsGrid: View {
     let items: [Movie]
+    let onSelect: (Movie) -> Void
 
     private let columns = [
         GridItem(.flexible(), spacing: 14),
@@ -212,7 +199,7 @@ private struct SearchResultsGrid: View {
         } else {
             LazyVGrid(columns: columns, spacing: 14) {
                 ForEach(items) { movie in
-                    PosterCard(movie: movie)
+                    PosterCard(movie: movie, onSelect: onSelect)
                 }
             }
             .padding(.top, 6)
@@ -226,6 +213,7 @@ private struct GenreRow: View {
     let title: String
     let actionTitle: String
     let items: [Movie]
+    let onSelect: (Movie) -> Void
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
@@ -247,7 +235,7 @@ private struct GenreRow: View {
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 14) {
                     ForEach(items) { movie in
-                        PosterCard(movie: movie)
+                        PosterCard(movie: movie, onSelect: onSelect)
                     }
                 }
                 .padding(.vertical, 4)
@@ -259,6 +247,7 @@ private struct GenreRow: View {
 
 private struct PosterCard: View {
     let movie: Movie
+    let onSelect: (Movie) -> Void
 
     var body: some View {
         Image(movie.imageName)
@@ -272,9 +261,7 @@ private struct PosterCard: View {
                     .stroke(Color.white.opacity(0.08), lineWidth: 1)
             )
             .contentShape(Rectangle())
-            .onTapGesture {
-                // later: navigate to details
-            }
+            .onTapGesture { onSelect(movie) }  // ✅ navigate
     }
 }
 
@@ -318,14 +305,12 @@ struct Movie: Identifiable, Hashable {
     let category: Category
 
     static let sample: [Movie] = [
-        // High Rated
         Movie(title: "Top Gun",
               imageName: "MoviesPoster1",
               rating: 4.8,
               subtitle: "Action, 2 hr 9 min",
               category: .highRated),
 
-        // Drama
         Movie(title: "Shawshank",
               imageName: "DramaMovie1",
               rating: 4.9,
@@ -338,7 +323,6 @@ struct Movie: Identifiable, Hashable {
               subtitle: "Drama/Romance, 2 hr 16 min",
               category: .drama),
 
-        // Comedy
         Movie(title: "World's Greatest Dad",
               imageName: "CoMovie1",
               rating: 4.2,
