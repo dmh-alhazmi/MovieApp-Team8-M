@@ -63,6 +63,21 @@ struct SignIn: View {
                 .onAppear {
                     focus = .emailAddress
                 }
+                Button(action: {
+                    print("HelloWorld")
+                }) {
+                VStack{
+                    Text("Sign In")
+                        .foregroundColor(Color.black)
+                        .fontWeight(.semibold)
+                        .font(.title2)
+
+                }
+                .frame(minWidth: 0, maxWidth: .infinity)
+                .padding()
+                .background(Color("SignInYellow"))
+                .cornerRadius(20)
+                }
             }
         }
     }
