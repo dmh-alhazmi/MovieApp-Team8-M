@@ -58,7 +58,7 @@ struct HeaderSection: View {
     var body: some View {
         ZStack(alignment: .bottomLeading) {
             // صورة الفيلم بالمقاسات المحددة
-            Image("movies")
+            Image("Movies")
                 .resizable()
                 .aspectRatio(contentMode: .fill)
                 .frame(width: 390, height: 448)
@@ -74,16 +74,23 @@ struct HeaderSection: View {
                         .padding(10)
                         .background(.ultraThinMaterial)
                         .clipShape(Circle())
-                    
+                        .foregroundColor(Color("AccentColor"))
+
                     Spacer()
                     
-                    HStack(spacing: 15) {
+                    HStack(spacing: 20) {
                         Image(systemName: "square.and.arrow.up")
+                            .padding(10)
+                            .background(.ultraThinMaterial)
+                            .clipShape(Circle())
+                            .foregroundColor(Color("AccentColor"))
+
                         Image(systemName: "bookmark")
+                            .padding(10)
+                            .background(.ultraThinMaterial)
+                            .clipShape(Circle())
+                            .foregroundColor(Color("AccentColor"))
                     }
-                    .padding(10)
-                    .background(.ultraThinMaterial)
-                    .clipShape(Capsule())
                 }
                 .foregroundColor(.white)
                 .padding(.top, 60)
@@ -104,7 +111,7 @@ struct HeaderSection: View {
 }
 
 // MARK: - 2. Info Grid View
-struct InfoGridView: View {
+struct InfoGridView: View { // شبكة عموديه تحط فيها عدد الاعمدة
     let columns = [GridItem(.flexible()), GridItem(.flexible())]
     
     var body: some View {
@@ -115,7 +122,8 @@ struct InfoGridView: View {
             infoItem(title: "Age", value: "+15")
         }
     }
-    
+    // functions return number of info as entered before , organize them within selected view
+
     func infoItem(title: String, value: String) -> some View {
         VStack(alignment: .leading, spacing: 5) {
             Text(title).font(.system(size: 18, weight: .bold)).foregroundColor(.white)
@@ -142,25 +150,39 @@ struct CastSection: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 15) {
             Text("Director").font(.headline).foregroundColor(.white)
-            castMember(name: "Frank Darabont")
-            
+            Image("Director")
+                .resizable()
+                //.aspectRatio(contentMode: .fit)
+                .scaledToFit()
+                .frame(width: 76, height: 76)
+                .clipShape(Circle())
+            Text("Frank Darabont")
+                .font(.footnote)
+                .foregroundColor(.white)
+
             Text("Stars").font(.headline).foregroundColor(.white)
             HStack(spacing: 25) {
-                castMember(name: "Tim Robbins")
-                castMember(name: "Morgan Freeman")
-                castMember(name: "Bob Gunton")
+                HStack(spacing: 25) {
+                    castMember(imageName: "Tim", name: "Tim Robbins")
+                    castMember(imageName: "Morgan", name: "Morgan Freeman")
+                    castMember(imageName: "Bob", name: "Bob Gunton")
+                }
             }
         }
     }
     
-    func castMember(name: String) -> some View {
-        VStack {
-            Image("movies")
+    func castMember(imageName: String, name: String) -> some View {
+        VStack(spacing: 6) {
+            Image(imageName)
                 .resizable()
-                .scaledToFill()
-                .frame(width: 70, height: 70)
+                .scaledToFit()
+                .frame(width: 76, height: 76)
                 .clipShape(Circle())
-            Text(name).font(.system(size: 12)).foregroundColor(.white)
+            
+            Text(name)
+                .font(.system(size: 12))
+                .foregroundColor(.white)
+                .multilineTextAlignment(.center)
         }
     }
 }
@@ -180,9 +202,9 @@ struct RatingsAndReviewsSection: View {
             // التمرير الأفقي للريفيوز بمقاسات w305 h188
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 15) {
-                    ReviewCard()
-                    ReviewCard()
-                    ReviewCard()
+                    ReviewCard(reviewerName: "Afnan Abdullah")
+                    ReviewCard(reviewerName: "Sara Alqahtani")
+                    ReviewCard(reviewerName: "Mohammed Ali")
                 }
             }
             .padding(.bottom, 40)
@@ -192,17 +214,22 @@ struct RatingsAndReviewsSection: View {
 
 // MARK: - 6. Review Card Component
 struct ReviewCard: View {
+    let reviewerName: String // الاسم فقط
+
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack(alignment: .top) {
-                Image("movies")
+                Image(getAvatar(for: reviewerName)) // الصورة حسب الاسم
                     .resizable()
                     .frame(width: 40, height: 40)
                     .clipShape(Circle())
                 
                 VStack(alignment: .leading) {
-                    Text("Afnan Abdullah").font(.system(size: 14, weight: .bold)).foregroundColor(.white)
-                    Text("⭐⭐⭐⭐").font(.system(size: 10))
+                    Text(reviewerName)
+                        .font(.system(size: 14, weight: .bold))
+                        .foregroundColor(.white)
+                    Text("⭐⭐⭐⭐")
+                        .font(.system(size: 10))
                 }
                 Spacer()
             }
@@ -216,14 +243,25 @@ struct ReviewCard: View {
             
             HStack {
                 Spacer()
-                Text("Tuesday").font(.system(size: 10)).foregroundColor(.gray)
+                Text("Tuesday")
+                    .font(.system(size: 10))
+                    .foregroundColor(.gray)
             }
         }
         .padding()
-        // المقاس المطلوب للكرت
         .frame(width: 305, height: 188)
         .background(Color.white.opacity(0.1))
         .cornerRadius(15)
+    }
+    
+    // دالة مساعدة لتحديد الصورة حسب الاسم
+    func getAvatar(for name: String) -> String {
+        switch name {
+        case "Afnan Abdullah": return "Avatar1"
+        case "Sara Alqahtani": return "Avatar2"
+        case "Mohammed Ali": return "Avatar3"
+        default: return "DefaultAvatar"
+        }
     }
 }
 
@@ -237,7 +275,7 @@ struct MovieDetailsView_Previews: PreviewProvider {
                 .previewDevice("iPhone 15 Pro")
             
             // يمكنك أيضاً عرض كرت الريفيو منفرداً لتعديله بدقة
-            ReviewCard()
+            ReviewCard(reviewerName: "Afnan Abdullah")
                 .previewLayout(.sizeThatFits)
                 .padding()
                 .background(Color.black)
