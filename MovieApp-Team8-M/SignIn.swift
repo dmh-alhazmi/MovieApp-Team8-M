@@ -79,6 +79,7 @@ struct SignIn: View {
                 .cornerRadius(20)
                 }
             }
+
         }
     }
 }
