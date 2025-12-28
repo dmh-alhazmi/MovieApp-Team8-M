@@ -69,10 +69,11 @@ struct Profile: View {
                 Spacer()
 
 
-                VStack(spacing: 12) {
+                VStack{
                     ZStack {
                         Image("No Saved Movies")
                     }
+                    Spacer()
                 }
                 .frame(maxWidth: .infinity)
                 .padding(.bottom, 60)

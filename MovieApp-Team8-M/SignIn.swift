@@ -21,6 +21,7 @@ struct SignIn: View {
                 .ignoresSafeArea()
             VStack{
                 VStack{
+                    Spacer()
                     Text("Sign in")
                         .font(.largeTitle)
                         .bold()
@@ -32,7 +33,7 @@ struct SignIn: View {
                         .foregroundColor(.white)
                         .frame(maxWidth: .infinity, alignment: .init(horizontal: .leading, vertical: .top))
                 }
-                .padding(20)
+                .padding(18)
                 VStack{
                     Text("Email")
                         .fontWeight(.light)
@@ -40,9 +41,9 @@ struct SignIn: View {
                         .font(.callout)
                         .frame(maxWidth: .infinity, alignment: .init(horizontal: .leading, vertical: .top))
                         .padding(.horizontal, 20)
-                    TextField("Enter your email...", text: $textInput)
-                        .textFieldStyle(.roundedBorder)
-                        .padding(10)
+                    TextField("", text: $textInput, prompt: Text("Enter  your email")
+                    .foregroundColor(Color.white))
+                    .glassInput()
                         .onSubmit {
                             print(textInput)
                             focus = .password
@@ -54,10 +55,9 @@ struct SignIn: View {
                         .font(.callout)
                         .frame(maxWidth: .infinity, alignment: .init(horizontal: .leading, vertical: .top))
                         .padding(.horizontal, 20)
-                    SecureField("Password", text:
-                                $textInput2)
-                    .textFieldStyle(.roundedBorder)
-                    .padding(10)
+                    SecureField("", text: $textInput2, prompt: Text("Enter your password")
+                    .foregroundColor(Color.white))
+                    .glassInput()
                     .focused($focus, equals: .password)
                 }
                 .onAppear {
@@ -71,12 +71,12 @@ struct SignIn: View {
                         .foregroundColor(Color.black)
                         .fontWeight(.semibold)
                         .font(.title2)
-
                 }
                 .frame(minWidth: 0, maxWidth: .infinity)
                 .padding()
-                .background(Color("SignInYellow"))
-                .cornerRadius(20)
+                .background(Color("SignInGrey"))
+                .cornerRadius(8)
+                .padding()
                 }
             }
 
@@ -86,6 +86,24 @@ struct SignIn: View {
 enum FieldFocus: Hashable {
     case emailAddress
     case password
+}
+struct TextInputStyle: ViewModifier {
+    func body(content: Content) -> some View {
+        content
+            .foregroundColor(Color.white)
+            .padding()
+            .background(.ultraThinMaterial)
+            .cornerRadius(10)
+            .overlay(RoundedRectangle(cornerRadius: 10)
+                .stroke(Color.white.opacity(0), lineWidth: 2))
+            .shadow(color: .black.opacity(0.2), radius: 10, x: 0, y: 5)
+            .padding(.horizontal, 11)
+    }
+}
+extension View {
+    func glassInput() -> some View {
+        self.modifier(TextInputStyle())
+    }
 }
 #Preview {
     SignIn()
