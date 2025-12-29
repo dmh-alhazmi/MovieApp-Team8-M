@@ -6,15 +6,20 @@
 //
 
 import SwiftUI
+import PhotosUI
 
 struct Profile: View {
+    @Environment(\.dismiss) private var dismiss
+    @StateObject private var profileModel = ProfileModel() // Source of truth
+    @State private var showProfileInfo = false
+
     var body: some View {
         ZStack {
             Color.black.ignoresSafeArea()
 
             VStack(alignment: .leading, spacing: 24) {
                 Button {
-
+                    dismiss()
                 } label: {
                     HStack(spacing: 6) {
                         Image(systemName: "chevron.left")
@@ -30,36 +35,42 @@ struct Profile: View {
                     .font(.system(size: 34, weight: .bold))
                     .foregroundStyle(.white)
                     .padding(2)
-                HStack(spacing: 12) {
-                    avatar
-                        .frame(width: 44, height: 44)
-                        .clipShape(Circle())
 
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text("Sarah Abdullah")
-                            .font(.headline.weight(.semibold))
-                            .foregroundStyle(.white)
+                Button {
+                    showProfileInfo = true
+                } label: {
+                    HStack(spacing: 12) {
+                        avatar
+                            .frame(width: 44, height: 44)
+                            .clipShape(Circle())
 
-                        Text("Xxxx234@gmail.com")
-                            .font(.subheadline)
-                            .foregroundStyle(.white.opacity(0.7))
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("\(profileModel.firstName) \(profileModel.lastName)".trimmingCharacters(in: .whitespaces))
+                                .font(.headline.weight(.semibold))
+                                .foregroundStyle(.white)
+
+                            Text(profileModel.email)
+                                .font(.subheadline)
+                                .foregroundStyle(.white.opacity(0.7))
+                        }
+
+                        Spacer()
+
+                        Image(systemName: "chevron.right")
+                            .foregroundStyle(.white.opacity(0.6))
+                            .font(.system(size: 16, weight: .semibold))
                     }
-
-                    Spacer()
-
-                    Image(systemName: "chevron.right")
-                        .foregroundStyle(.white.opacity(0.6))
-                        .font(.system(size: 16, weight: .semibold))
+                    .padding()
+                    .background(
+                        RoundedRectangle(cornerRadius: 14, style: .continuous)
+                            .fill(Color.white.opacity(0.08))
+                    )
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 14, style: .continuous)
+                            .stroke(Color.white.opacity(0.08), lineWidth: 1)
+                    )
                 }
-                .padding()
-                .background(
-                    RoundedRectangle(cornerRadius: 14, style: .continuous)
-                        .fill(Color.white.opacity(0.08))
-                )
-                .overlay(
-                    RoundedRectangle(cornerRadius: 14, style: .continuous)
-                        .stroke(Color.white.opacity(0.08), lineWidth: 1)
-                )
+                .buttonStyle(.plain)
 
                 Text("Saved movies")
                     .font(.system(size: 20, weight: .bold))
@@ -68,24 +79,32 @@ struct Profile: View {
 
                 Spacer()
 
-
-                VStack{
-                    ZStack {
-                        Image("No Saved Movies")
-                    }
-                    Spacer()
+                VStack {
+                    Image("No Saved Movies")
                 }
                 .frame(maxWidth: .infinity)
-                .padding(.bottom, 60)
+                // Consolidated padding (233 + 66) for clearer vertical positioning
+                .padding(.bottom, 299)
             }
             .padding(.horizontal, 16)
             .padding(.top, 8)
         }
+        // Push ProfileInfoView on the SAME parent NavigationStack (MoviesCenter's stack)
+        .navigationDestination(isPresented: $showProfileInfo) {
+            ProfileInfoView()
+                .environmentObject(profileModel)
+        }
+        // Hide the default back button so only your custom one shows
+        .navigationBarBackButtonHidden(true)
     }
 
     private var avatar: some View {
         Group {
-            if UIImage(named: "ProfileAvatar") != nil {
+            if let image = profileModel.avatar {
+                Image(uiImage: image)
+                    .resizable()
+                    .scaledToFill()
+            } else if UIImage(named: "ProfileAvatar") != nil {
                 Image("ProfileAvatar")
                     .resizable()
                     .scaledToFill()
@@ -101,5 +120,8 @@ struct Profile: View {
 }
 
 #Preview {
-    Profile()
+    NavigationStack {
+        Profile()
+            .preferredColorScheme(.dark)
+    }
 }

@@ -13,6 +13,15 @@ struct SignIn: View {
     @State private var textInput = ""
     @State private var textInput2 = ""
     @FocusState private var focus: FieldFocus?
+    private var isEmailValid: Bool {
+        Self.isValidEmail(textInput)
+    }
+    private var isPasswordValid: Bool {
+        !textInput2.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+    }
+    private var isFormValid: Bool {
+        isEmailValid && isPasswordValid
+    }
     var body: some View {
         ZStack{
             Image("Sign in screen")
@@ -34,60 +43,86 @@ struct SignIn: View {
                         .frame(maxWidth: .infinity, alignment: .init(horizontal: .leading, vertical: .top))
                 }
                 .padding(18)
-                VStack{
+                VStack(spacing: 8) {
                     Text("Email")
                         .fontWeight(.light)
                         .foregroundStyle(Color.white)
                         .font(.callout)
                         .frame(maxWidth: .infinity, alignment: .init(horizontal: .leading, vertical: .top))
                         .padding(.horizontal, 20)
+                    
                     TextField("", text: $textInput, prompt: Text("Enter  your email")
-                    .foregroundColor(Color.white))
+                        .foregroundColor(Color.white))
+                    .keyboardType(.emailAddress)
+                    .textInputAutocapitalization(.never)
+                    .autocorrectionDisabled()
                     .glassInput()
-                        .onSubmit {
-                            print(textInput)
-                            focus = .password
-                        }
-                        .focused($focus, equals: .emailAddress)
+                    .onSubmit {
+                        focus = .password
+                    }
+                    .focused($focus, equals: .emailAddress)
+                    if !textInput.isEmpty && !isEmailValid {
+                        Text("Please enter a valid email address.")
+                            .font(.footnote)
+                            .foregroundColor(.red.opacity(0.9))
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding(.horizontal, 22)
+                    }
+                    
                     Text("Password")
                         .fontWeight(.light)
                         .foregroundStyle(Color.white)
                         .font(.callout)
                         .frame(maxWidth: .infinity, alignment: .init(horizontal: .leading, vertical: .top))
                         .padding(.horizontal, 17)
+                    
                     SecureField("", text: $textInput2, prompt: Text("Enter your password")
-                    .foregroundColor(Color.white))
+                        .foregroundColor(Color.white))
                     .glassInput()
                     .focused($focus, equals: .password)
                 }
                 .onAppear {
                     focus = .emailAddress
                 }
+                
                 Button(action: {
-                    print("HelloWorld")
+                    guard isFormValid else { return }
+                    print("Sign In tapped with email: \(textInput)")
                 }) {
-                VStack{
-                    Text("Sign In")
-                        .foregroundColor(Color.black)
-                        .fontWeight(.semibold)
-                        .font(.title2)
+                    VStack{
+                        Text("Sign In")
+                            .foregroundColor(Color.black)
+                            .fontWeight(.semibold)
+                            .font(.title2)
+                    }
+                    .frame(minWidth: 0, maxWidth: .infinity)
+                    .padding()
+                    .background(
+                        Color(isFormValid ? "SignInYellow" : "SignInGrey")
+                    )
+                    .cornerRadius(8)
+                    .padding(.bottom, 66)
+                    .padding(.top,20)
                 }
-                .frame(minWidth: 0, maxWidth: .infinity)
-                .padding()
-                .background(Color("SignInGrey"))
-                .cornerRadius(8)
-                .padding(.bottom, 66)
-                .padding(.top,20)
-                }
+                .disabled(!isFormValid)
+                .animation(.easeInOut(duration: 0.2), value: isFormValid)
             }
 
         }
     }
+    private static func isValidEmail(_ email: String) -> Bool {
+        let trimmed = email.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return false }
+        let pattern = #"^[A-Z0-9a-z._%+\-]+@[A-Za-z0-9.\-]+\.[A-Za-z]{2,}$"#
+        return trimmed.range(of: pattern, options: .regularExpression) != nil
+    }
 }
+
 enum FieldFocus: Hashable {
     case emailAddress
     case password
 }
+
 struct TextInputStyle: ViewModifier {
     func body(content: Content) -> some View {
         content
@@ -101,11 +136,13 @@ struct TextInputStyle: ViewModifier {
             .padding(.horizontal, 11)
     }
 }
+
 extension View {
     func glassInput() -> some View {
         self.modifier(TextInputStyle())
     }
 }
+
 #Preview {
     SignIn()
 }

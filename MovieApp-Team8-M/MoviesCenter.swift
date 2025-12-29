@@ -12,6 +12,7 @@ import SwiftUI
 struct MoviesCenter: View {
     @State private var query = ""
     @State private var selectedMovie: Movie?   // ✅ navigation target
+    @State private var showProfile = false     // ✅ push Profile
 
     private let movies = Movie.sample
 
@@ -58,7 +59,7 @@ struct MoviesCenter: View {
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button {
-                        // later: profile
+                        showProfile = true              // ✅ trigger push
                     } label: {
                         Image("ProfileAvatar")
                             .resizable()
@@ -71,6 +72,10 @@ struct MoviesCenter: View {
             // ✅ Connect to MovieDetailsView
             .navigationDestination(item: $selectedMovie) { _ in
                 MovieDetailsView()
+            }
+            // ✅ Push Profile screen
+            .navigationDestination(isPresented: $showProfile) {
+                Profile()
             }
         }
         .tint(Color("AccentColor", fallback: .yellow))
