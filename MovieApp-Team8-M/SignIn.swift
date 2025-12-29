@@ -58,8 +58,6 @@ struct SignIn: View {
                     SecureField("", text: $textInput2, prompt: Text("Enter your password")
                     .foregroundColor(Color.white))
                     .glassInput()
-                    .padding(.vertical, 13)
-                    .padding(.bottom, 11)
                     .focused($focus, equals: .password)
                 }
                 .onAppear {
@@ -79,6 +77,7 @@ struct SignIn: View {
                 .background(Color("SignInGrey"))
                 .cornerRadius(8)
                 .padding(.bottom, 66)
+                .padding(.top,20)
                 }
             }
 
