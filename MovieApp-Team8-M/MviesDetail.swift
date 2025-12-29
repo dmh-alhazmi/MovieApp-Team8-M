@@ -234,7 +234,7 @@ struct ReviewCard: View {
                 Spacer()
             }
             
-            Text("This is an engagingly simple, good-hearted film, with just enough darkness around the edges to give contrast and relief to its glowingly benign view of human nature.")
+            Text("This is an engagingly simple, good-hearted film, with just enough darkness around the edges to give cgontrast and relief to its glowingly benign view of human nature.")
                 .font(.system(size: 12))
                 .foregroundColor(.gray)
                 .lineLimit(4)
