@@ -91,7 +91,6 @@ Developed by **Team 8**
 
 * **Deemah Alhazmi**
 * **Teif Almaneea**
-* **Amnah Albrahim**
 * **Aljowhara Saad bin Samih**
 
 This project focuses on clean UI design, SwiftUI best practices, and delivering an enjoyable movie-browsing experience.
